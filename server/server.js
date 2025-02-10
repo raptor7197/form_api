@@ -15,6 +15,11 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.send("Server is running! Use /report to submit data.");
+});
+
+
 // Store counts for each category
 let graphCounts = { violation: 0, criminal: 0, threat: 0 };
 
