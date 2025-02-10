@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Bar } from "react-chartjs-2";
 import io from "socket.io-client";
+import "./ReportForm.css";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 
 // Register required Chart.js components
@@ -70,17 +71,23 @@ const ReportForm = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto p-6 bg-white shadow-md rounded-lg">
-      <h2 className="text-xl font-bold mb-4">Report Form</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <>
+
+    <div class="form-container">
+    <form class="form" onSubmit={handleSubmit}>
+      <div class="form-group">
+        <label for="email">Name</label>
         <input
           type="text"
           placeholder="Enter your name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="w-full p-2 border rounded"
-        />
+        />      
+        </div>
 
+        <div class="form-group">
+        <label for="email">Category</label>
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
@@ -90,26 +97,32 @@ const ReportForm = () => {
           <option value="violation">Violation</option>
           <option value="criminal">Criminal</option>
           <option value="threat">Threat</option>
-        </select>
+        </select>    
+        </div>
 
+      <div class="form-group">
+        <label for="textarea">How Can We Help You?</label>
         <textarea
           placeholder="Enter description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="w-full p-2 border rounded"
         ></textarea>
+      </div>
+      <button class="form-submit-btn" type="submit">Submit</button>
+    </form >
+  </div>
 
-        <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded">
-          Submit
-        </button>
-      </form>
+
+
+
 
       {/* Graph Section */}
       <h3 className="mt-6 text-lg font-bold">Graph Data</h3>
       <div className="mt-4">
         <Bar data={chartData} />
       </div>
-    </div>
+    </>
   );
 };
 
