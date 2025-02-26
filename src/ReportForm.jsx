@@ -81,7 +81,7 @@ const ReportForm = () => {
 
   return (
     <div className="report-form-container">
-      <ShapeBlur />
+      {/* <ShapeBlur /> */}
       <form className="form" onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="category">Category</label>
