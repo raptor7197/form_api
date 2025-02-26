@@ -139,6 +139,17 @@ const ReportForm = () => {
   return (
     <div className="report-form-container">
       <form className="form" onSubmit={handleSubmit}>
+      <div className="name-group">
+          <label htmlFor="name">Name</label>
+          <textarea
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleInputChange}
+            placeholder="Enter Name"
+            required
+          ></textarea>
+        </div>
         <div className="form-group">
           <label htmlFor="category">Category</label>
           <select
@@ -165,6 +176,7 @@ const ReportForm = () => {
             placeholder="Enter description"
             required
           ></textarea>
+          
         </div>
         
         <button 
