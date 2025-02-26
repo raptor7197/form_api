@@ -7,7 +7,7 @@
     padding: 20px;
     background-color: #b9d0e7;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   }
   
   .form {
@@ -58,6 +58,8 @@
   .form-submit-btn {
     background-color: #3b82f6;
     color: white;
+    width: 200px;
+    align-self: center;
     border: none;
     border-radius: 4px;
     padding: 12px;
@@ -77,6 +79,7 @@
   .form-submit-btn:disabled {
     background-color: #9ca3af;
     cursor: not-allowed;
+    
   }
   
   .graph-section {

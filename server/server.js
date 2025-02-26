@@ -9,7 +9,6 @@ const rateLimit = require("express-rate-limit");
 const app = express();
 const server = http.createServer(app);
 
-// Get frontend URL from environment or use fallback
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
 const io = new Server(server, {
@@ -62,7 +61,6 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Helper function to get formatted counts
 async function getFormattedCounts() {
   const graphCounts = await Report.aggregate([
     { $group: { _id: "$category", count: { $sum: 1 } } }
@@ -73,7 +71,6 @@ async function getFormattedCounts() {
   }, { violation: 0, criminal: 0, threat: 0 });
 }
 
-// Routes
 app.get("/", (req, res) => {
   res.send("Server is running! Use /report to submit data.");
 });

@@ -13,7 +13,6 @@ import {
   Legend 
 } from "chart.js";
 
-// Register Chart.js components
 ChartJS.register(
   CategoryScale, 
   LinearScale, 
@@ -23,11 +22,11 @@ ChartJS.register(
   Legend
 );
 
-// Backend URL - direct reference for simplicity
 const socket = io("http://localhost:5000");
 
 const ReportForm = () => {
   const [formData, setFormData] = useState({ 
+    name : "",
     category: "", 
     description: "" 
   });
@@ -41,7 +40,6 @@ const ReportForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Data fetching on component mount
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -59,12 +57,10 @@ const ReportForm = () => {
 
     fetchData();
 
-    // Socket listener for real-time updates
     socket.on("updateGraph", (updatedData) => {
       setGraphData(updatedData);
     });
 
-    // Cleanup on unmount
     return () => {
       socket.off("updateGraph");
     };
@@ -81,7 +77,7 @@ const ReportForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.category || !formData.description) {
+    if (!formData.name || !formData.category || !formData.description) {
       setError("All fields are required!");
       return;
     }
@@ -89,7 +85,7 @@ const ReportForm = () => {
     setIsLoading(true);
     try {
       await axios.post("http://localhost:5000/report", formData);
-      setFormData({ category: "", description: "" });
+      setFormData({ name:" ",category: "", description: "" });
       setError(null);
     } catch (err) {
       setError("Error submitting report. Please try again.");
@@ -99,7 +95,6 @@ const ReportForm = () => {
     }
   };
 
-  // Prepare chart data
   const chartData = useMemo(() => ({
     labels: ["Violation", "Criminal", "Threat"],
     datasets: [
@@ -117,7 +112,6 @@ const ReportForm = () => {
     ],
   }), [graphData]);
 
-  // Chart options
   const chartOptions = {
     responsive: true,
     plugins: {
@@ -131,7 +125,6 @@ const ReportForm = () => {
     },
   };
 
-  // Loading state
   if (isLoading && !Object.values(graphData).some(val => val > 0)) {
     return <div className="loading">Loading...</div>;
   }
