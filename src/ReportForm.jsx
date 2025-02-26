@@ -3,48 +3,84 @@ import axios from "axios";
 import { Bar } from "react-chartjs-2";
 import io from "socket.io-client";
 import "./ReportForm.css";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
-import ShapeBlur from './particles';
+import { 
+  Chart as ChartJS, 
+  CategoryScale, 
+  LinearScale, 
+  BarElement, 
+  Title, 
+  Tooltip, 
+  Legend 
+} from "chart.js";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale, 
+  LinearScale, 
+  BarElement, 
+  Title, 
+  Tooltip, 
+  Legend
+);
 
+// Backend URL - direct reference for simplicity
 const socket = io("http://localhost:5000");
 
 const ReportForm = () => {
-  const [formData, setFormData] = useState({ category: "", description: "" });
-  const [graphData, setGraphData] = useState({ violation: 0, criminal: 0, threat: 0 });
+  const [formData, setFormData] = useState({ 
+    category: "", 
+    description: "" 
+  });
+  
+  const [graphData, setGraphData] = useState({ 
+    violation: 0, 
+    criminal: 0, 
+    threat: 0 
+  });
+  
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Data fetching on component mount
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
         const response = await axios.get("http://localhost:5000/graph");
         setGraphData(response.data);
-      } catch (error) {
+        setError(null);
+      } catch (err) {
         setError("Error fetching data. Please try again.");
-        console.error("Error fetching data:", error);
+        console.error("Error fetching data:", err);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     fetchData();
 
+    // Socket listener for real-time updates
     socket.on("updateGraph", (updatedData) => {
       setGraphData(updatedData);
     });
 
-    return () => socket.off("updateGraph");
+    // Cleanup on unmount
+    return () => {
+      socket.off("updateGraph");
+    };
   }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({ ...prevData, [name]: value }));
+    setFormData((prevData) => ({ 
+      ...prevData, 
+      [name]: value 
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     if (!formData.category || !formData.description) {
       setError("All fields are required!");
       return;
@@ -55,33 +91,53 @@ const ReportForm = () => {
       await axios.post("http://localhost:5000/report", formData);
       setFormData({ category: "", description: "" });
       setError(null);
-    } catch (error) {
+    } catch (err) {
       setError("Error submitting report. Please try again.");
-      console.error("Error submitting report:", error);
+      console.error("Error submitting report:", err);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
+  // Prepare chart data
   const chartData = useMemo(() => ({
     labels: ["Violation", "Criminal", "Threat"],
     datasets: [
       {
         label: "Report Counts",
-        data: [graphData.violation, graphData.criminal, graphData.threat],
+        data: [
+          graphData.violation || 0, 
+          graphData.criminal || 0, 
+          graphData.threat || 0
+        ],
         backgroundColor: ["#f87171", "#3b82f6", "#facc15"],
         borderColor: ["#dc2626", "#1d4ed8", "#ca8a04"],
-        hoverBorderColor: ["#7a38c7","#84ca35","#dc9123"],
         borderWidth: 2,
       }
     ],
   }), [graphData]);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  // Chart options
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Report Categories',
+      },
+    },
+  };
+
+  // Loading state
+  if (isLoading && !Object.values(graphData).some(val => val > 0)) {
+    return <div className="loading">Loading...</div>;
+  }
 
   return (
     <div className="report-form-container">
-      {/* <ShapeBlur /> */}
       <form className="form" onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="category">Category</label>
@@ -98,6 +154,7 @@ const ReportForm = () => {
             <option value="threat">Threat</option>
           </select>
         </div>
+        
         <div className="form-group">
           <label htmlFor="description">Description</label>
           <textarea
@@ -109,14 +166,21 @@ const ReportForm = () => {
             required
           ></textarea>
         </div>
-        <button className="form-submit-btn" type="submit" disabled={isLoading}>
+        
+        <button 
+          className="form-submit-btn" 
+          type="submit" 
+          disabled={isLoading}
+        >
           {isLoading ? 'Submitting...' : 'Submit'}
         </button>
       </form>
 
+      {error && <div className="error-message">{error}</div>}
+
       <div className="graph-section">
-        <h3>Graph Data</h3>
-        <Bar data={chartData} />
+        <h3>Reports by Category</h3>
+        <Bar data={chartData} options={chartOptions} />
       </div>
     </div>
   );
